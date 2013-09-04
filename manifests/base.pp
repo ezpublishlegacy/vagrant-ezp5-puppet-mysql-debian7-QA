@@ -13,6 +13,14 @@ include prepareezpublish
 include addhosts
 include xdebug
 include git
+## QA
+include svn
+include ssh
+include ftp
+include ezsi
+include tests
+include vncserver
+include seleniumserver
 
 
 #### QA ####
@@ -87,9 +95,9 @@ class ezsi {
       group  => "esitest",
       mode   => '750',  
     }    
-    file { "/etc/httpd/conf.d/filter.conf":
+    file { "/etc/apache2/conf/filter.conf":
       ensure => file,
-      content => template('/tmp/vagrant-puppet/manifests/httpd/filter.conf.erb'),
+      content => template('/tmp/vagrant-puppet/manifests/apache/filter.conf.erb'),
       owner   => 'root',
       group   => 'root',
       mode    => '640',
