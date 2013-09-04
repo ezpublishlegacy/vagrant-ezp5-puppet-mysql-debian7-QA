@@ -29,6 +29,7 @@ Vagrant.configure("2") do |config|
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
+  # Without the use of this, eZ Publish won't be able to get the site packages using Windows and Mac OS Hosts
   config.vm.network :public_network
 
   # Share an additional folder to the guest VM. The first argument is
@@ -51,10 +52,7 @@ Vagrant.configure("2") do |config|
   
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "manifests"
-    puppet.manifest_file  = "base_xdebug.pp"
-    # If you want to use the version that doesn't include xdebug and the dev environment in virtualhosts file
-    # comment the upper line, and un-comment the lower one.
-    #puppet.manifest_file  = "base.pp"
+    puppet.manifest_file  = "base.pp"
   end
 
 end
