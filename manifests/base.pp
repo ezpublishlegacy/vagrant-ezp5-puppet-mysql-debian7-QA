@@ -160,7 +160,7 @@ class vncserver {
 
 class seleniumserver {
     require upgrade
-    require firefox
+    require firefox36
     exec { "create selenium folder":
         command => "/bin/mkdir /opt/selenium",
         path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
