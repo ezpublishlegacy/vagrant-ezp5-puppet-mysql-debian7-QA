@@ -91,13 +91,13 @@ class ezsi {
         group  => "esitest",
         mode   => '750',  
     }    
-    file { "/etc/apache2/conf.d/filter.conf":
-        ensure => file,
-        content => template('/tmp/vagrant-puppet/manifests/apache/filter.conf.erb'),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '640',
-    }
+#    file { "/etc/apache2/conf.d/filter.conf":
+#        ensure => file,
+#        content => template('/tmp/vagrant-puppet/manifests/apache/filter.conf.erb'),
+#        owner   => 'root',
+#        group   => 'root',
+#        mode    => '640',
+#    }
 }
 
 class tests {
@@ -195,12 +195,9 @@ class fixupdatedb {
 
 class xdebug {
     require upgrade
-    exec { "install xdebug":
-        command => "pear install pecl/xdebug",
-        path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
-        require => Package['php-pear'],
-        returns => [ 0, 1, '', ' ']
-    }
+    package { "php5-xdebug":
+        ensure => installed,
+    } ~>
     file {'/etc/php5/conf.d/xdebug.ini':
         ensure  => file,
         content => template('/tmp/vagrant-puppet/manifests/php/xdebug.ini.erb'),
