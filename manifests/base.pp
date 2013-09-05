@@ -22,7 +22,8 @@ include tests
 include vncserver
 include seleniumserver
 include fixupdatedb
-include firefox
+#include firefox
+include firefox36
 ## QA ##
 
 
@@ -131,7 +132,7 @@ class tests {
 
 class vncserver {
     require upgrade    
-    $neededpackages = [ "vnc4server", "xterm", "matchbox-window-manager" ]
+    $neededpackages = [ "tightvncserver", "xterm", "matchbox-window-manager" ]
     package { $neededpackages:
         ensure => present,
     } ~>
@@ -191,7 +192,7 @@ class fixupdatedb {
         returns => [ 0, 1, '', ' ']
       }  
 }
-
+/*
 class firefox {
     require upgrade
     exec { "move firefox":
@@ -203,13 +204,63 @@ class firefox {
         path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
         refreshonly => true,
     } ~>
+    exec { "move firefox to opt":
+        command => "/bin/mv /home/vagrant/firefox /opt/",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+        returns => [ 0, 1]
+    } ~>
+    exec { "remove tar":
+        command => "/bin/rm /opt/firefox-23.0.1.tar.bz2",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+    } ~>
     exec { "/bin/ln -s /opt/firefox/firefox":
         command => "/bin/ln -s /opt/firefox/firefox /usr/local/bin/firefox",
         path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
         refreshonly => true,
     } ~>
     exec { "ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin":
-        command => "/bin/echo",
+        command => "/bin/ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+    }
+}
+*/
+class firefox36 {
+    exec { "wget firefox36":
+        command => "/usr/bin/wget 'http://download.mozilla.org/?product=firefox-3.6.13&os=linux&lang=en-US'",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+    } ~>
+    exec { "move firefox36":
+        command => "/bin/mv 'index.html?product=firefox-3.6.13&os=linux&lang=en-US' firefox.tar",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+    } ~>
+    exec { "untar firefox36":
+        command => "/bin/tar -xf firefox.tar",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+    } ~>
+    exec { "move firefox to opt":
+        command => "/bin/mv /home/vagrant/firefox /opt/",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+        returns => [ 0, 1]
+    } ~>
+    exec { "remove tar":
+        command => "/bin/rm /opt/firefox-23.0.1.tar.bz2",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+    } ~>
+    exec { "/bin/ln -s /opt/firefox/firefox":
+        command => "/bin/ln -s /opt/firefox/firefox /usr/local/bin/firefox",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+    } ~>
+    exec { "ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin":
+        command => "/bin/ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin",
         path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
         refreshonly => true,
     }
