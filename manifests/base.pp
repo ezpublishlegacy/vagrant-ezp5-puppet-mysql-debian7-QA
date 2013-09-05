@@ -22,6 +22,7 @@ include tests
 include vncserver
 include seleniumserver
 include fixupdatedb
+include firefox
 ## QA ##
 
 
@@ -130,7 +131,7 @@ class tests {
 
 class vncserver {
     require upgrade    
-    $neededpackages = [ "tightvncserver", "xterm", "matchbox-window-manager", "firefox-sage" ]
+    $neededpackages = [ "vnc4server", "xterm", "matchbox-window-manager" ]
     package { $neededpackages:
         ensure => present,
     } ~>
@@ -157,7 +158,8 @@ class vncserver {
 }
 
 class seleniumserver {
-    require upgrade    
+    require upgrade
+    require firefox
     exec { "create selenium folder":
         command => "/bin/mkdir /opt/selenium",
         path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
@@ -190,6 +192,28 @@ class fixupdatedb {
       }  
 }
 
+class firefox {
+    require upgrade
+    exec { "move firefox":
+        command => "/bin/cp /tmp/vagrant-puppet/manifests/firefox/firefox-23.0.1.tar.bz2 /opt",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+    } ~>
+    exec { "untar":
+        command => "/bin/tar -jxvf /opt/firefox-23.0.1.tar.bz2",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+    } ~>
+    exec { "/bin/ln -s /opt/firefox/firefox":
+        command => "/bin/ln -s /opt/firefox/firefox /usr/local/bin/firefox",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+    } ~>
+    exec { "ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin":
+        command => "/bin/echo",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+    }
+}
 #### QA ####
 
 
