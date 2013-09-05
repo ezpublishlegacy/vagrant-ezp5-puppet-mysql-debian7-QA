@@ -13,7 +13,7 @@ include prepareezpublish
 include addhosts
 include xdebug
 include git
-## QA
+## QA ##
 include svn
 include ssh
 include ftp
@@ -21,165 +21,173 @@ include ezsi
 include tests
 include vncserver
 include seleniumserver
+include fixupdatedb
+## QA ##
 
 
 #### QA ####
 class svn {
+    require upgrade
     package { "subversion":
-      ensure => installed,
+        ensure => installed,
     } ~>
     file { "/home/vagrant/.subversion":
-      ensure => "directory",
-      owner  => "vagrant",
-      group  => "vagrant",
-      mode   => '750',  
+        ensure => "directory",
+        owner  => "vagrant",
+        group  => "vagrant",
+        mode   => '750',  
     } 
     file { "/home/vagrant/.subversion/config":
-      ensure => file,
-      content => template('/tmp/vagrant-puppet/manifests/svn/config.erb'),
-      owner   => 'vagrant',
-      group   => 'vagrant',
-      mode    => '750',
+        ensure => file,
+        content => template('/tmp/vagrant-puppet/manifests/svn/config.erb'),
+        owner   => 'vagrant',
+        group   => 'vagrant',
+        mode    => '750',
     }
 }
 
 class ssh {
+    require upgrade
     file { "/etc/ssh/sshd_config":
-      ensure => file,
-      content => template('/tmp/vagrant-puppet/manifests/ssh/sshd_config.erb'),
-      owner   => 'root',
-      group   => 'root',
-      mode    => '644',
+        ensure => file,
+        content => template('/tmp/vagrant-puppet/manifests/ssh/sshd_config.erb'),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '644',
     }
 }
 
 class ftp {
+    require upgrade    
     $neededpackages = ["vsftpd", "ftp"]
     package { $neededpackages:
-      ensure => installed,
+        ensure => installed,
     } ~>
-    exec { "chkconfig vsftp on":
-      command => "/sbin/chkconfig vsftp on",
-      path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-      returns => [ 0, 1, '', ' ']
-    } ~>
-    exec { "service vsftp start":
-      command => "/sbin/service vsftp start",
-      path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-      returns => [ 0, 1, '', ' ']
-    } ~>
-    exec { "setsebool -P ftp_home_dir=1":
-      command => "/usr/sbin/setsebool -P ftp_home_dir=1",
-      path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-      returns => [ 0, 1, '', ' ']
-    } ~>
+#    exec { "setsebool -P ftp_home_dir=1":
+#        command => "/usr/sbin/setsebool -P ftp_home_dir=1",
+#        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+#        returns => [ 0, 1, '', ' ']
+#    } ~>
     service { "vsftpd":
-      ensure => running,
-      hasstatus => true,
-      hasrestart => true,
-      require => Package["vsftpd"],
-      restart => true;
+        ensure => running,
+        hasstatus => true,
+        hasrestart => true,
+        require => Package["vsftpd"],
+        restart => true;
     }    
 }
 
 class ezsi {
+    require upgrade    
     user { "esitest":
-      comment => "Creating user esitest",
-      home => "/home/esitest",
-      ensure => present,
-      shell => "/bin/bash",
+        comment => "Creating user esitest",
+        home => "/home/esitest",
+        ensure => present,
+        shell => "/bin/bash",
     } ~>
     file { "/home/esitest":
-      ensure => "directory",
-      owner  => "esitest",
-      group  => "esitest",
-      mode   => '750',  
+        ensure => "directory",
+        owner  => "esitest",
+        group  => "esitest",
+        mode   => '750',  
     }    
-    file { "/etc/apache2/conf/filter.conf":
-      ensure => file,
-      content => template('/tmp/vagrant-puppet/manifests/apache/filter.conf.erb'),
-      owner   => 'root',
-      group   => 'root',
-      mode    => '640',
+    file { "/etc/apache2/conf.d/filter.conf":
+        ensure => file,
+        content => template('/tmp/vagrant-puppet/manifests/apache/filter.conf.erb'),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '640',
     }
 }
 
 class tests {
+    require upgrade    
     package { "patch":
-      ensure => installed,
+        ensure => installed,
     } ->
     file { "/usr/local/sbin/restart_apache.sh":
-      ensure => file,
-      content => template('/tmp/vagrant-puppet/manifests/tests/restart_apache.sh.erb'),
-      owner   => 'root',
-      group   => 'root',
-      mode    => '755',
+        ensure => file,
+        content => template('/tmp/vagrant-puppet/manifests/tests/restart_apache.sh.erb'),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '755',
     } ~>
     file { "/usr/local/sbin/rootlaunch":
-      ensure => file,
-      content => template('/tmp/vagrant-puppet/manifests/tests/rootlaunch.erb'),
-      owner   => 'root',
-      group   => 'root',
-      mode    => '755',
+        ensure => file,
+        content => template('/tmp/vagrant-puppet/manifests/tests/rootlaunch.erb'),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '755',
     } ~>
     file { "/usr/local/etc/configfile.rootlaunch":
-      ensure => file,
-      content => template('/tmp/vagrant-puppet/manifests/tests/configfile.rootlaunch.erb'),
-      owner   => 'root',
-      group   => 'root',
-      mode    => '644',
+        ensure => file,
+        content => template('/tmp/vagrant-puppet/manifests/tests/configfile.rootlaunch.erb'),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '644',
     }
 }
 
 class vncserver {
-    $neededpackages = [ "tigervnc", "tigervnc-server", "tigervnc-server-module", "xterm", "matchbox-window-manager", "firefox" ]
+    require upgrade    
+    $neededpackages = [ "tightvncserver", "xterm", "matchbox-window-manager", "firefox-sage" ]
     package { $neededpackages:
-      ensure => present,
+        ensure => present,
     } ~>
     file { "/home/vagrant/.Xauthority":
-      ensure => file,
-      content => template('/tmp/vagrant-puppet/manifests/vncserver/Xauthority.erb'),
-      owner  => "vagrant",
-      group  => "vagrant",
-      mode   => '750',  
+        ensure => file,
+        content => template('/tmp/vagrant-puppet/manifests/vncserver/Xauthority.erb'),
+        owner  => "vagrant",
+        group  => "vagrant",
+        mode   => '750',  
     } ~>
     file { "/home/vagrant/.vnc":
-      ensure => "directory",
-      owner  => "vagrant",
-      group  => "vagrant",
-      mode   => '750',  
+        ensure => "directory",
+        owner  => "vagrant",
+        group  => "vagrant",
+        mode   => '750',  
     } ~>
     file { "/home/vagrant/.vnc/xstartup":
-      ensure => file,
-      content => template('/tmp/vagrant-puppet/manifests/vncserver/xstartup.erb'),
-      owner  => "vagrant",
-      group  => "vagrant",
-      mode   => '777',  
+        ensure => file,
+        content => template('/tmp/vagrant-puppet/manifests/vncserver/xstartup.erb'),
+        owner  => "vagrant",
+        group  => "vagrant",
+        mode   => '777',  
     }
 }
 
 class seleniumserver {
+    require upgrade    
     exec { "create selenium folder":
-      command => "/bin/mkdir /opt/selenium",
-      path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
-      returns => [ 0, 1, '', ' ']
+        command => "/bin/mkdir /opt/selenium",
+        path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
+        returns => [ 0, 1, '', ' ']
     } ~>
     exec    { "wget":
-      cwd     => "/opt/selenium",
-      command => "/usr/bin/wget http://selenium.googlecode.com/files/selenium-server-standalone-2.5.0.jar",
-      path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
-      returns => [ 0, 1, '', ' ']
+        cwd     => "/opt/selenium",
+        command => "/usr/bin/wget http://selenium.googlecode.com/files/selenium-server-standalone-2.5.0.jar",
+        path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
+        returns => [ 0, 1, '', ' ']
     } ~>
     file { "/usr/local/bin/start_seleniumrc.sh":
-      ensure => file,
-      content => template('/tmp/vagrant-puppet/manifests/selenium/start_seleniumrc.sh.erb'),
-      mode   => '777',  
+        ensure => file,
+        content => template('/tmp/vagrant-puppet/manifests/selenium/start_seleniumrc.sh.erb'),
+        mode   => '777',  
     } ~>
     exec    { "chmod":
-      command => "/bin/chmod +x /user/local/bin/start_seleniumrc.sh",
-      path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
-      returns => [ 0, 1, '', ' ']
+        command => "/bin/chmod +x /user/local/bin/start_seleniumrc.sh",
+        path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
+        returns => [ 0, 1, '', ' ']
     } 
+}
+
+class fixupdatedb {
+    require upgrade 
+    exec { "update db":
+        command => "/usr/bin/updatedb",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        returns => [ 0, 1, '', ' ']
+      }  
 }
 
 #### QA ####
@@ -268,8 +276,9 @@ class apachephp {
         require => Package[ "apache2" ]
     } ~>
     exec { "restart apache2":
-        command => "service apache2 restart",
+        command => "/usr/sbin/service apache2 restart",
         path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        returns => [ 0, 1]
     }
 }
 
@@ -368,14 +377,18 @@ class composer {
 
 class prepareezpublish {
     require upgrade
+    require apachephp
     service { 'apache2':
         ensure => running,
         enable => true,
-        before => Exec["prepare eZ Publish"],
         require => [File['/etc/apache2/sites-enabled/01.accept_pathinfo.conf'], File['/etc/apache2/sites-enabled/ezp5.conf']]
     } ~>
-    exec { "Fix Permissions":
+    exec { "Fix owner":
         command => "/bin/chown -R www-data:www-data /var/www/",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+    } ~>
+    exec { "Fix Permissions":
+        command => "/bin/chmod -R 777 /var/www/",
         path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
     }
 }
