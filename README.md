@@ -30,7 +30,7 @@ Prototype development machine for eZ Publish 5.x, provisioned with Puppet.
     - <siteaccesssettings matchorder="uri" adminhost="127.0.0.1">
 ```
 - To run a filter use the command:
-    - time php tests/runtests.php --dsn mysqli://ezp:ezp@10.0.5.4/ezp --db-per-test --configuration=extension/selenium/configs/<CONFIGURATION>.xml --filter="admin2.html"
+    - time php tests/runtests.php --dsn mysqli://ezp:ezp@localhost/ezp --db-per-test --configuration=extension/selenium/configs/<CONFIGURATION>.xml --filter="admin2.html"
 
 - You need to chown ezpublish/cache ezpublish/logs folder using: sudo chown -R www-data cache/ logs/
 
