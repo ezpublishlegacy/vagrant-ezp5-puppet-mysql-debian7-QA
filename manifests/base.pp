@@ -186,12 +186,6 @@ class seleniumstuffserver {
         refreshonly => true,
         returns => [ 0, 1]
     } ~>
-#    exec { "move firefox":
-#        command => "/bin/mv 'index.html?product=firefox-23.0.1&os=linux&lang=en-US' firefox.tar.bz2",
-#        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-#        refreshonly => true,
-#        returns => [ 0, 1]
-#    } ~>
     exec { "untar firefox":
         command => "/bin/tar -xjf firefox-23.0.1.tar.bz2 -C /opt",
         path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
@@ -201,12 +195,13 @@ class seleniumstuffserver {
         command => "/bin/ln -s /opt/firefox/firefox /usr/local/bin/firefox",
         path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
         refreshonly => true,
+    } ~>
+    package { "firefox-sage":  
+        ensure => installed,
     } 
-#    exec { "ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin":
-#        command => "/bin/ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin",
-#        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-#        refreshonly => true,
-#    }
+    ## Don't know why, but you need to have firefox from Debian installed without it will give the error:
+    ## libdbus-glib-1.so.2: cannot open shared object file: No such file or directory
+    ## Couldn't load XPCOM
 }
 
 class fixupdatedb {
