@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
   # Bridged networks make the machine appear as another physical device on
   # your network.
   # Without the use of this, eZ Publish won't be able to get the site packages using Windows and Mac OS Hosts
-  # config.vm.network :public_network
+  config.vm.network :public_network
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
