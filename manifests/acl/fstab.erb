@@ -1,0 +1,13 @@
+# /etc/fstab: static file system information.
+#
+# Use 'blkid' to print the universally unique identifier for a
+# device; this may be used with UUID= as a more robust way to name devices
+# that works even if disks are added and removed. See fstab(5).
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+/dev/mapper/debian--70rc1--x64--vbox4210-root /               ext3    acl,errors=remount-ro 0       1
+# /boot was on /dev/sda1 during installation
+UUID=356044fd-4d17-4994-93fc-b2df215eab56 /boot           ext2    defaults        0       2
+/dev/mapper/debian--70rc1--x64--vbox4210-swap_1 none            swap    sw              0       0
+/dev/sr0        /media/cdrom0   udf,iso9660 user,noauto     0       0
+/dev/sr1        /media/cdrom1   udf,iso9660 user,noauto     0       0

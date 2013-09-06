@@ -12,6 +12,7 @@ include composer
 include prepareezpublish
 include addhosts
 include xdebug
+include acl
 include git
 ## QA ##
 include svn
@@ -20,11 +21,8 @@ include ftp
 include ezsi
 include tests
 include vncserver
-include seleniumserver
+include seleniumstuffserver
 include fixupdatedb
-include firefox36
-#include firefox
-
 ## QA ##
 
 
@@ -133,7 +131,7 @@ class tests {
 
 class vncserver {
     require upgrade    
-    $neededpackages = [ "tightvncserver", "xterm", "matchbox-window-manager" ]
+    $neededpackages = [ "tightvncserver", "xterm", "matchbox-window-manager"]
     package { $neededpackages:
         ensure => present,
     } ~>
@@ -159,7 +157,7 @@ class vncserver {
     }
 }
 
-class seleniumserver {
+class seleniumstuffserver {
     require upgrade
     exec { "create selenium folder":
         command => "/bin/mkdir /opt/selenium",
@@ -168,7 +166,7 @@ class seleniumserver {
     } ~>
     exec    { "wget":
         cwd     => "/opt/selenium",
-        command => "/usr/bin/wget http://selenium.googlecode.com/files/selenium-server-standalone-2.5.0.jar",
+        command => "/usr/bin/wget http://selenium.googlecode.com/files/selenium-server-standalone-2.35.0.jar",
         path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
         returns => [ 0, 1, '', ' ']
     } ~>
@@ -181,7 +179,34 @@ class seleniumserver {
         command => "/bin/chmod +x /user/local/bin/start_seleniumrc.sh",
         path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
         returns => [ 0, 1, '', ' ']
+    } ~>
+    exec { "wget firefox":
+        command => "/usr/bin/wget 'http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/23.0.1/linux-x86_64/en-GB/firefox-23.0.1.tar.bz2'",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+        returns => [ 0, 1]
+    } ~>
+#    exec { "move firefox":
+#        command => "/bin/mv 'index.html?product=firefox-23.0.1&os=linux&lang=en-US' firefox.tar.bz2",
+#        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+#        refreshonly => true,
+#        returns => [ 0, 1]
+#    } ~>
+    exec { "untar firefox":
+        command => "/bin/tar -xjf firefox-23.0.1.tar.bz2 -C /opt",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
+    } ~>
+    exec { "/bin/ln -s /opt/firefox/firefox":
+        command => "/bin/ln -s /opt/firefox/firefox /usr/local/bin/firefox",
+        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+        refreshonly => true,
     } 
+#    exec { "ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin":
+#        command => "/bin/ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin",
+#        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
+#        refreshonly => true,
+#    }
 }
 
 class fixupdatedb {
@@ -192,82 +217,21 @@ class fixupdatedb {
         returns => [ 0, 1, '', ' ']
       }  
 }
-/*
-class firefox {
-    require upgrade
-    exec { "move firefox":
-        command => "/bin/cp /tmp/vagrant-puppet/manifests/firefox/firefox-23.0.1.tar.bz2 /opt",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-    } ~>
-    exec { "untar":
-        command => "/bin/tar -jxvf /opt/firefox-23.0.1.tar.bz2",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-    } ~>
-    exec { "move firefox to opt":
-        command => "/bin/mv /home/vagrant/firefox /opt/",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-        returns => [ 0, 1]
-    } ~>
-    exec { "remove tar":
-        command => "/bin/rm /opt/firefox-23.0.1.tar.bz2",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-    } ~>
-    exec { "/bin/ln -s /opt/firefox/firefox":
-        command => "/bin/ln -s /opt/firefox/firefox /usr/local/bin/firefox",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-    } ~>
-    exec { "ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin":
-        command => "/bin/ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-    }
-}
-*/
-class firefox36 {
-    require upgrade
-    exec { "wget firefox36":
-        command => "/usr/bin/wget 'http://download.mozilla.org/?product=firefox-3.6.13&os=linux&lang=en-US'",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-    } ~>
-    exec { "move firefox36":
-        command => "/bin/mv 'index.html?product=firefox-3.6.13&os=linux&lang=en-US' firefox.tar",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-    } ~>
-    exec { "untar firefox36":
-        command => "/bin/tar -xf firefox.tar",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-    } ~>
-    exec { "move firefox to opt":
-        command => "/bin/mv /home/vagrant/firefox /opt/",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-        returns => [ 0, 1]
-    } ~>
-    exec { "remove tar":
-        command => "/bin/rm /opt/firefox-23.0.1.tar.bz2",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-    } ~>
-    exec { "/bin/ln -s /opt/firefox/firefox":
-        command => "/bin/ln -s /opt/firefox/firefox /usr/local/bin/firefox",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-    } ~>
-    exec { "ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin":
-        command => "/bin/ln -s /opt/firefox/firefox-bin /usr/local/bin/firefox-bin",
-        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        refreshonly => true,
-    }
-}
 #### QA ####
 
+class acl {
+    require upgrade
+    package { "acl":
+        ensure => installed,
+    } ~>
+    file {'/etc/fstab':
+        ensure  => file,
+        content => template('/tmp/vagrant-puppet/manifests/acl/fstab.erb'),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '644'
+    }
+}
 
 class xdebug {
     require upgrade
