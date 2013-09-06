@@ -24,7 +24,15 @@ Prototype development machine for eZ Publish 5.x, provisioned with Puppet.
 - Run `$ vagrant up` from the terminal
 - Wait (the first time will take a few minutes, as the base box is downloaded, and required packages are installed for the first time), get some coffee.
 - Done! `$ vagrant ssh` to SSH into your newly created machine. The MOTD contains details on the database, hostnames, etc.
-- By default Xdebug is enable, if you want to disable it, go to line 55 of Vagrantfile comment it and uncomment line 58. Don't forget to run `$ vagrant up` after
+- You need to make a few changes in your personal xml configuration files:
+
+```    
+    - <siteaccesssettings matchorder="uri" adminhost="127.0.0.1">
+```
+- To run a filter use the command:
+    - time php tests/runtests.php --dsn mysqli://ezp:ezp@10.0.5.4/ezp --db-per-test --configuration=extension/selenium/configs/<CONFIGURATION>.xml --filter="admin2.html"
+
+- You need to chown ezpublish/cache ezpublish/logs folder using: sudo chown -R www-data cache/ logs/
 
 ## Environment Details:
 
