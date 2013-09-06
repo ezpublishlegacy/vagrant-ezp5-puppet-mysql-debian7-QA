@@ -22,8 +22,9 @@ include tests
 include vncserver
 include seleniumserver
 include fixupdatedb
-#include firefox
 include firefox36
+#include firefox
+
 ## QA ##
 
 
@@ -160,7 +161,6 @@ class vncserver {
 
 class seleniumserver {
     require upgrade
-    require firefox36
     exec { "create selenium folder":
         command => "/bin/mkdir /opt/selenium",
         path    => "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin",
@@ -228,6 +228,7 @@ class firefox {
 }
 */
 class firefox36 {
+    require upgrade
     exec { "wget firefox36":
         command => "/usr/bin/wget 'http://download.mozilla.org/?product=firefox-3.6.13&os=linux&lang=en-US'",
         path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
