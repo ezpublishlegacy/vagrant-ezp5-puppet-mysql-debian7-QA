@@ -64,11 +64,13 @@ class ftp {
     package { $neededpackages:
         ensure => installed,
     } ~>
-#    exec { "setsebool -P ftp_home_dir=1":
-#        command => "/usr/sbin/setsebool -P ftp_home_dir=1",
-#        path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-#        returns => [ 0, 1, '', ' ']
-#    } ~>
+    file { "/etc/vsftpd.conf":
+        ensure => file,
+        content => template('/tmp/vagrant-puppet/manifests/vsftp/vsftpd.conf.erb'),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '644',
+    } ~>
     service { "vsftpd":
         ensure => running,
         hasstatus => true,
