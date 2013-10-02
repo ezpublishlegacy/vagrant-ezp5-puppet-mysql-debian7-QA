@@ -94,7 +94,7 @@ class ezsi {
         owner  => "esitest",
         group  => "esitest",
         mode   => '750',  
-    } ~>
+    } 
 }
 
 class tests {
