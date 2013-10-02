@@ -87,20 +87,14 @@ class ezsi {
         home => "/home/esitest",
         ensure => present,
         shell => "/bin/bash",
+        password            => sha1('esitest'),
     } ~>
     file { "/home/esitest":
         ensure => "directory",
         owner  => "esitest",
         group  => "esitest",
         mode   => '750',  
-    }    
-#    file { "/etc/apache2/conf.d/filter.conf":
-#        ensure => file,
-#        content => template('/tmp/vagrant-puppet/manifests/apache/filter.conf.erb'),
-#        owner   => 'root',
-#        group   => 'root',
-#        mode    => '640',
-#    }
+    } ~>
 }
 
 class tests {
