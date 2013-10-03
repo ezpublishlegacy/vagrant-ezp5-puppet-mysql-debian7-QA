@@ -94,7 +94,20 @@ class ezsi {
         owner  => "esitest",
         group  => "esitest",
         mode   => '750',  
-    } 
+    } ~>
+    file { "/etc/apache2/sites-enabled/ezp5.si.conf":
+        ensure => file,
+        content => template('/tmp/vagrant-puppet/manifests/virtualhosts/ezp5.si.conf.erb'),
+        owner   => 'root',
+        group   => 'root',
+        require => Package[ "apache2" ]
+    } ~>
+    exec { "a2enmod filter":
+        command => "/usr/sbin/a2enmod filter",
+    } ~>
+    exec { "a2enmod include":
+        command => "/usr/sbin/a2enmod include",
+    }
 }
 
 class tests {
